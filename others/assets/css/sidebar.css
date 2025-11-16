@@ -70,7 +70,7 @@
   transform: scale(1.15) rotate(15deg);
 }
 
-/* Floating Animation */
+/* Floating Animation (sidebar logo*/
 @keyframes float {
   0%, 100% {
     transform: translateY(0px);
