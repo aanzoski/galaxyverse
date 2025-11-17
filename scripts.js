@@ -403,6 +403,7 @@ function shouldAutoApplySeasonalTheme() {
             localStorage.removeItem('galaxyverse_user_key');
             localStorage.removeItem('galaxyverse_credential_id');
             localStorage.removeItem('galaxyverse_access');
+            alert('🚫 Your key is no longer valid. Please enter a new key.');
             showKeyEntryScreen();
             return;
           }
@@ -423,17 +424,31 @@ function shouldAutoApplySeasonalTheme() {
             localStorage.removeItem('galaxyverse_user_key');
             localStorage.removeItem('galaxyverse_credential_id');
             localStorage.removeItem('galaxyverse_access');
-            alert('⚠️ Security Alert: Credential verification failed.');
+            alert('🚫 Passkey mismatch detected. You must enter a new key.');
             showKeyEntryScreen();
             return;
           }
           
           // Authenticate with WebAuthn
+          console.log('🔐 Attempting passkey authentication...');
           const authenticated = await WebAuthnManager.authenticate(storedCredentialId);
           
           if (!authenticated) {
-            console.error('🚫 WebAuthn authentication failed');
-            alert('⚠️ Passkey authentication failed. Please re-enter your key.');
+            console.error('🚫 WebAuthn authentication failed - No passkey found');
+            await database.ref('securityLogs/passkeyNotFound/' + Date.now()).set({
+              key: storedKey,
+              credentialId: storedCredentialId.substring(0, 16) + '...',
+              timestamp: Date.now(),
+              date: new Date().toISOString(),
+              severity: 'HIGH',
+              reason: 'Passkey not found on device'
+            });
+            
+            localStorage.removeItem('galaxyverse_user_key');
+            localStorage.removeItem('galaxyverse_credential_id');
+            localStorage.removeItem('galaxyverse_access');
+            
+            alert('🚫 No passkey found on this device.\n\nYou must enter a NEW key to create a passkey on this device.');
             showKeyEntryScreen();
             return;
           }
@@ -466,9 +481,21 @@ function shouldAutoApplySeasonalTheme() {
           return;
         } catch (error) {
           console.error('❌ Error during auto-login:', error);
+          
+          // Clear all credentials on any error
           localStorage.removeItem('galaxyverse_user_key');
           localStorage.removeItem('galaxyverse_credential_id');
           localStorage.removeItem('galaxyverse_access');
+          
+          // Show specific error message
+          if (error.name === 'NotAllowedError') {
+            alert('🚫 Passkey authentication failed or was cancelled.\n\nYou must enter a NEW key.');
+          } else {
+            alert('🚫 Authentication error: ' + (error.message || 'Unknown error') + '\n\nYou must enter a NEW key.');
+          }
+          
+          showKeyEntryScreen();
+          return;
         }
       }
 
@@ -640,8 +667,9 @@ function shouldAutoApplySeasonalTheme() {
           ">
             🛡️ WebAuthn Passkey Protection<br>
             🔐 Device-bound, non-shareable authentication<br>
-            🔒 Keys locked to ONE device permanently<br>
+            🔒 Each key locks to ONE device permanently<br>
             🌟 Cannot be transferred or copied<br>
+            ⚠️ If you don't have a passkey, you need a NEW key<br>
             ✨ Works across ALL GalaxyVerse domains<br><br>
             Contact admins for lifetime key ($5)
           </div>
@@ -758,96 +786,31 @@ function shouldAutoApplySeasonalTheme() {
           const snapshot = await keyRef.once('value');
           
           if (snapshot.exists()) {
-            // ===== KEY EXISTS - AUTHENTICATE WITH WEBAUTHN =====
+            // ===== KEY EXISTS - MUST USE A NEW KEY =====
             const keyData = snapshot.val();
             
             console.log('📝 Key found in database');
-            console.log('🔍 Verifying WebAuthn passkey...');
+            console.log('🚫 This key already has a passkey registered on another device');
             
-            if (!keyData.credentialId) {
-              keyError.textContent = '❌ This key has no passkey registered. Contact support.';
-              keyError.style.color = '#ff4444';
-              keyError.style.display = 'block';
-              submitBtn.disabled = false;
-              submitBtn.textContent = 'Verify Key & Create Passkey';
-              submitBtn.style.cursor = 'pointer';
-              return;
-            }
-            
-            submitBtn.textContent = 'Authenticating passkey...';
-            
-            const authenticated = await WebAuthnManager.authenticate(keyData.credentialId);
-            
-            if (!authenticated) {
-              keyError.textContent = '🚫 Passkey authentication failed. This key is locked to a different device.';
-              keyError.style.color = '#ff4444';
-              keyError.style.display = 'block';
-              keyInput.style.borderColor = '#ff4444';
-              keyInput.value = '';
-              submitBtn.disabled = false;
-              submitBtn.textContent = 'Verify Key & Create Passkey';
-              submitBtn.style.cursor = 'pointer';
-              
-              await database.ref('securityLogs/passkeyAuthFailed/' + Date.now()).set({
-                key: enteredKey,
-                credentialId: keyData.credentialId.substring(0, 16) + '...',
-                timestamp: Date.now(),
-                date: new Date().toISOString(),
-                severity: 'HIGH'
-              });
-              return;
-            }
-            
-            // ===== AUTHENTICATION SUCCESSFUL =====
-            console.log('✅ WebAuthn authentication successful!');
-            
-            const websites = keyData.websites || [];
-            
-            if (!websites.includes(actualSite)) {
-              await keyRef.update({
-                websites: [...websites, actualSite],
-                timesAccessed: (keyData.timesAccessed || 0) + 1,
-                lastAccessed: new Date().toISOString(),
-                lastAccessedSite: actualSite,
-                network: normalizedSite
-              });
-            } else {
-              await keyRef.update({
-                timesAccessed: (keyData.timesAccessed || 0) + 1,
-                lastAccessed: new Date().toISOString(),
-                lastAccessedSite: actualSite
-              });
-            }
-            
-            localStorage.setItem('galaxyverse_access', 'granted');
-            localStorage.setItem('galaxyverse_user_key', enteredKey);
-            localStorage.setItem('galaxyverse_credential_id', keyData.credentialId);
-            
-            if (typeof window.WebsiteKeyTracker !== 'undefined') {
-              window.WebsiteKeyTracker.trackKeyUsage(enteredKey, actualSite, keyData.credentialId);
-            }
-            
-            keyError.style.color = '#4ade80';
-            keyError.textContent = '✅ Welcome back! Passkey verified';
+            keyError.textContent = '🚫 This key is already registered to another device. Each device needs its own unique key.';
+            keyError.style.color = '#ff4444';
             keyError.style.display = 'block';
-            keyInput.style.borderColor = '#4ade80';
-            submitBtn.style.background = 'linear-gradient(135deg, #4ade80, #22c55e)';
-            submitBtn.textContent = 'Success!';
-
-            console.log('✅ Access granted');
-
-            setTimeout(() => {
-              keyOverlay.style.opacity = '0';
-              keyOverlay.style.transition = 'opacity 0.5s ease';
-              setTimeout(() => {
-                keyOverlay.remove();
-                const mainContent = document.getElementById('app') || document.body;
-                if (mainContent && mainContent !== document.body) {
-                  mainContent.style.filter = '';
-                  mainContent.style.pointerEvents = '';
-                }
-              }, 500);
-            }, 1500);
+            keyInput.style.borderColor = '#ff4444';
+            keyInput.value = '';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Verify Key & Create Passkey';
+            submitBtn.style.cursor = 'pointer';
+            
+            await database.ref('securityLogs/keyAlreadyRegistered/' + Date.now()).set({
+              key: enteredKey,
+              existingCredentialId: keyData.credentialId?.substring(0, 16) + '...',
+              attemptedFrom: actualSite,
+              timestamp: Date.now(),
+              date: new Date().toISOString(),
+              severity: 'MEDIUM',
+              reason: 'User tried to use key registered to different device'
+            });
+            
             return;
           } else {
             // ===== NEW KEY - REGISTER WITH WEBAUTHN =====
