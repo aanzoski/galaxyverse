@@ -39,7 +39,7 @@ const games = [
   { name: "Crossy Road", image: "others/assets/images/games/crossyroad.png", url: "others/assets/games/Crossy Road.html" },
   { name: "Cuphead", image: "others/assets/images/games/cuphead.webp", url: "others/assets/games/Cuphead.html" },
   { name: "Drift Boss", image: "others/assets/images/games/driftboss.png", url: "others/assets/games/Drift Boss.html" },
-  { name: "Drift Hunters ", image: "others/assets/images/games/drift-hunters.png", url: "others/assets/games/drift.html" },
+  { name: "Drift Hunters ", image: "others/assets/images/games/drift-hunters.png", url: "others/assets/games/Drift Huntersfix.html" },
   { name: "Escape Road", image: "others/assets/images/games/escaperoad.png", url: "others/assets/games/Escape Road.html" },
   { name: "Escape Road 2", image: "others/assets/images/games/escaperoad2.jpeg", url: "others/assets/games/clescaperoad-2.html" },
   { name: "Flappy Bird", image: "others/assets/images/games/flappybird.png", url: "others/assets/games/Flappy Bird.html" },
