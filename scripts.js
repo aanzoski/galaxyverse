@@ -339,36 +339,37 @@ function shouldAutoApplySeasonalTheme() {
       'jordanthedev',
       'devinisahuman',
       // Contributor Keys
-      'darielisa67produde',
-      'geminihereisyourkey',
-      'secrethiddenforreal',
-      // PAYED KEYS
-      '6spsb9xn1lbgnbvp8tfzufrwj1971jjl',
-      'nwmjfq34gqpyai8i1oh52bjb7uy4q8dc',
-      'ey04k0wnko0rf66rx858fl9luigyo1xc',
-      'a4d54ed5mi6d96ahbet7heb8hc2vcj3l',
-      'iolhzif0fvwzp0ko6rp7mkv5ddeq115x',
-      '0rwg5j41fkglve1qz5v1809tm5lgu2ly',
-      'dfr7ywfyimt7q98alx5uxjp7idu78k0x',
-      'jtkqwpcz1oy1w43hlbj52eqdd23uvhq2',
+      'darielis67age',
+      'googlegemini',
+      'someonecanhavethiskey',
+      // PAID KEYS
+      'Rh8xq1FtfFK2q5RQlSVs18TIHrIPJozX',
+      '3rE09eoKPls1IMjdnI1w8HToYTDLWmRq', //done nov17
+      '19EhZSE1nIAUmQ9nM3gKAZP3wLuqQl7s', //done nov17
+      'fYINFx0X4bcMWb2524J8EmLlW883X97h', //done nov17
+      'SRkAQIB6X3fkpiAV5t3bxMmzvTXjMfu2', //done nov17
+      'dWhlBziFTiQU8Q8M2K8L7zP6rN0wwW6Z', //done nov17
+      'flLqsmdXrkI60LINjP78n95W2i7cUkmy', //done nov17
+      '7pirAj7WOB8Oz6HNa4Ou0tQASNuostGX',
       // Free keys
-      '676767676767',
-      '41414141',
+      '67676767',
+      '414141414141',
       'whowantsthiskey',
       'version3published',
       // Specified Friend keys
-      'Q2nLh6cwvxv6c6W',
-      '3pXL08S8BVrLq9r',
-      '0wV5y9ZZ6G3mSzN',
-      '7ppD9Z0j2hj0Rd5',
+      'osZ9O36kX99k82',
+      'b7Tvc9Qu1x0M2X',
+      'e6bLi8IG00TV53',
+      'oB3Yv2zy25bV8R',
       // Made by az bro 
       'jordanisaskid67',
       'azisaskid41',
-      'HOluisK',
-      'calderonisbunsatsoccer',
+      'shortsluis',
+      'calderonisbadatsoccer',
+      'CanNeverGetCorrectSleep',
       // Uh idek for Hector
-      'Hectordontsharethis',
-      'thisnotfordomain',
+      'WeloveHector',
+      'domainuse',
       'jordanproskid'
     ];
 
