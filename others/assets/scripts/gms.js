@@ -41,6 +41,7 @@ const games = [
   { name: "Drift Boss", image: "others/assets/images/games/driftboss.png", url: "others/assets/games/Drift Boss.html" },
   { name: "Drift Hunters ", image: "others/assets/images/games/drift-hunters.png", url: "others/assets/games/drift.html" },
   { name: "Escape Road", image: "others/assets/images/games/escaperoad.png", url: "others/assets/games/Escape Road.html" },
+  { name: "Escape Road 2", image: "others/assets/images/games/escaperoad2.jpeg", url: "others/assets/games/clescaperoad-2.html" },
   { name: "Flappy Bird", image: "others/assets/images/games/flappybird.png", url: "others/assets/games/Flappy Bird.html" },
   { name: "Football Bros", image: "others/assets/images/games/football-bros.webp", url: "others/assets/games/Football Bros.html" },
   { name: "Friday Night Funkin': Darkness Takeover", image: "others/assets/images/games/takeover.jpg", url: "others/assets/games/Friday Night Funkin'_ Darkness Takeover.html" },
@@ -102,7 +103,8 @@ const apps = [
   { name: "Soundboard", image: "others/assets/images/apps/soundboard.png", url: "others/assets/apps/Soundboard.html" },
   { name: "Soundcloud", image: "others/assets/images/apps/soundcloud.png", url: "others/assets/apps/soundcloud.html" },
   { name: "Vscode", image: "others/assets/images/apps/vscode.jpeg", url: "others/assets/apps/vscode.html" },
-  { name: "YouTube", image: "/others/assets/images/apps/youtube.png", url: "/others/assets/apps/yt.html"}
+  { name: "YouTube", image: "/others/assets/images/apps/youtube.png", url: "/others/assets/apps/yt.html"},
+  { name: "Spotify (SOON)", image: "/others/assets/images/apps/spotify.png", url: "about:blank"}, 
 ];
 
 // ===== WEBSITES DATA - GALAXYVERSE NETWORK =====
