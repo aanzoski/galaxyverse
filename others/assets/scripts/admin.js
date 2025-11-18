@@ -1,3 +1,5 @@
+// HELLA SKIDDED
+
 // ===== ADMIN PANEL SYSTEM =====
 (function() {
   console.log('👑 Admin Panel System Loading...');
