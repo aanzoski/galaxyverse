@@ -496,10 +496,10 @@ const KeyGenerator = {
           ">
             <div style="margin-bottom: 8px; color: #4f90ff; font-weight: bold;">🔐 Fingerprint ID Security</div>
             <div style="font-size: 12px; text-align: left; padding: 0 10px;">
-              <div style="margin: 5px 0;">✅ Browser Fingerprint Authentication</div>
-              <div style="margin: 5px 0;">✅ Device-Specific Access</div>
+              <div style="margin: 5px 0;">✅ Saul is tung tung sahur</div>
               <div style="margin: 5px 0;">❌ Joseluis owes me $100</div>
               <div style="margin: 5px 0;">❌ Jacob Cuellar I need my $5k back</div>
+              <div style="margin: 5px 0;">❌ Fabian I need my Hellcat Back pls</div>
               <div style="margin: 5px 0;">👑 Admin Panel for Admins duh</div>
               <div style="margin: 10px 0; padding-top: 10px; border-top: 1px solid rgba(79, 144, 255, 0.2); font-size: 11px; color: #ff9966;">
                 Your fingerprint: ${fingerprintId.substring(0, 8)}...${fingerprintId.substring(fingerprintId.length - 8)}
