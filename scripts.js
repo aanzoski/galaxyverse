@@ -212,7 +212,8 @@ const KeyGenerator = {
     const lowercase = 'abcdefghijklmnopqrstuvwxyz';
     const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const numbers = '0123456789';
-    const special = '&*^#$';
+    // FIXED: Removed Firebase forbidden characters: . $ # [ ] / \ and quotes
+    const special = '&*^';
     const allChars = lowercase + uppercase + numbers + special;
     
     let key = '';
@@ -1698,7 +1699,7 @@ function initializeApp() {
   console.log('🔑 Manual key entry required each session');
   console.log('🔐 Each key is bound to your browser fingerprint');
   console.log('🌐 Cross-domain system: Keys work automatically across ALL GalaxyVerse sites');
-  console.log('✨ Key generator available with special characters (&*^#$)');
+  console.log('✨ Key generator available - Firebase compatible (no special chars: . $ # [ ] / \\ quotes)');
   
   } catch (error) {
     console.error('❌ Critical error during initialization:', error);
