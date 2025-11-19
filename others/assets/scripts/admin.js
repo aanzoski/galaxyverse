@@ -1,23 +1,28 @@
 // HELLA SKIDDED
 
-// ===== ADMIN PANEL SYSTEM =====
+// ===== ADMIN PANEL SYSTEM WITH OWNER HIERARCHY =====
 (function() {
   console.log('👑 Admin Panel System Loading...');
 
-  // Admin keys - these users can access the admin panel
-  const ADMIN_KEYS = [
-    'ghostisnot',
+  // Owner keys - highest privilege level, can manage admin keys
+  const OWNER_KEYS = [
     'azthedev',
-    'aziscoolbro',
-    'aanzoski',
-    'MichaelIsKronos',
-    'jordanthedev'
+    'aanzoski'
+  ];
+
+  // Admin keys - can manage regular keys but not admin/owner keys
+  const ADMIN_KEYS = [
+    'jordanthedev',
+    'ghostisnot',
+    'MichaelIsKronos'
   ];
 
   window.AdminPanel = {
     initialized: false,
     isAdmin: false,
+    isOwner: false,
     currentAdminKey: null,
+    userRole: null,
 
     init: function() {
       if (this.initialized) return;
@@ -40,8 +45,8 @@
         <h3>👑 Admin Panel</h3>
         <div id="admin-auth-container">
           <div class="setting-item">
-            <label for="admin-key-input">Admin Key:</label>
-            <input type="password" id="admin-key-input" placeholder="Enter admin key" />
+            <label for="admin-key-input">Admin/Owner Key:</label>
+            <input type="password" id="admin-key-input" placeholder="Enter admin or owner key" />
             <button id="admin-login-btn" class="btn-small">Login</button>
           </div>
           <div id="admin-error" style="color: #ff4444; margin-top: 10px; display: none;"></div>
@@ -49,9 +54,10 @@
         
         <div id="admin-panel-content" style="display: none;">
           <div style="background: rgba(79, 144, 255, 0.1); border: 1px solid rgba(79, 144, 255, 0.3); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-            <div style="color: #4ade80; font-weight: bold; margin-bottom: 10px;">✅ Admin Access Granted</div>
+            <div style="color: #4ade80; font-weight: bold; margin-bottom: 10px;">✅ Access Granted</div>
             <div style="font-size: 14px; color: var(--text-color);">
               Logged in as: <span id="admin-key-display" style="color: #4f90ff;"></span>
+              <span id="admin-role-badge" style="margin-left: 10px; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;"></span>
             </div>
             <button id="admin-logout-btn" class="btn-small" style="margin-top: 10px; background: #ff4444;">Logout</button>
           </div>
@@ -75,6 +81,9 @@
               <label style="font-weight: bold;">Remove Key:</label>
               <input type="text" id="remove-key-input" placeholder="Enter key to remove" style="margin-top: 8px;" />
               <button id="remove-key-btn" class="btn-small" style="background: #ff4444; margin-top: 10px;">Remove Key</button>
+              <div id="remove-key-warning" style="font-size: 12px; margin-top: 8px; color: #ff9966; display: none;">
+                ⚠️ Only owners can remove admin keys
+              </div>
             </div>
 
             <!-- View All Keys -->
@@ -171,30 +180,62 @@
       const key = adminKeyInput.value.trim();
 
       if (!key) {
-        this.showError('Please enter an admin key');
+        this.showError('Please enter a key');
         return;
       }
 
-      if (!ADMIN_KEYS.includes(key)) {
-        this.showError('Invalid admin key');
-        adminKeyInput.value = '';
+      // Check if owner
+      if (OWNER_KEYS.includes(key)) {
+        this.isOwner = true;
+        this.isAdmin = true;
+        this.userRole = 'OWNER';
+        this.currentAdminKey = key;
+        this.showPanel(key, 'OWNER');
+        console.log('👑 Owner logged in:', key);
         return;
       }
 
-      this.isAdmin = true;
-      this.currentAdminKey = key;
-      
+      // Check if admin
+      if (ADMIN_KEYS.includes(key)) {
+        this.isOwner = false;
+        this.isAdmin = true;
+        this.userRole = 'ADMIN';
+        this.currentAdminKey = key;
+        this.showPanel(key, 'ADMIN');
+        console.log('👑 Admin logged in:', key);
+        return;
+      }
+
+      // Invalid key
+      this.showError('Invalid key');
+      adminKeyInput.value = '';
+    },
+
+    showPanel: function(key, role) {
       document.getElementById('admin-auth-container').style.display = 'none';
       document.getElementById('admin-panel-content').style.display = 'block';
       document.getElementById('admin-key-display').textContent = key;
       
+      const roleBadge = document.getElementById('admin-role-badge');
+      if (role === 'OWNER') {
+        roleBadge.textContent = '👑 OWNER';
+        roleBadge.style.background = 'linear-gradient(135deg, #ffd700, #ffed4e)';
+        roleBadge.style.color = '#000';
+      } else {
+        roleBadge.textContent = '🔑 ADMIN';
+        roleBadge.style.background = 'rgba(79, 144, 255, 0.3)';
+        roleBadge.style.color = '#4f90ff';
+      }
+      
+      const adminError = document.getElementById('admin-error');
       if (adminError) adminError.style.display = 'none';
-      console.log('👑 Admin logged in:', key);
     },
 
     logout: function() {
       this.isAdmin = false;
+      this.isOwner = false;
       this.currentAdminKey = null;
+      this.userRole = null;
       
       document.getElementById('admin-auth-container').style.display = 'block';
       document.getElementById('admin-panel-content').style.display = 'none';
@@ -205,7 +246,7 @@
       document.getElementById('security-logs-container').style.display = 'none';
       document.getElementById('stats-container').style.display = 'none';
       
-      console.log('👑 Admin logged out');
+      console.log('👑 Logged out');
     },
 
     showError: function(message) {
@@ -290,6 +331,7 @@
         await database.ref('generatedKeys/' + key).set({
           key: key,
           generatedBy: this.currentAdminKey,
+          generatedByRole: this.userRole,
           generatedDate: new Date().toISOString(),
           timestamp: Date.now(),
           activated: false
@@ -308,6 +350,7 @@
       if (!this.isAdmin) return;
 
       const removeKeyInput = document.getElementById('remove-key-input');
+      const removeKeyWarning = document.getElementById('remove-key-warning');
       const key = removeKeyInput.value.trim();
 
       if (!key) {
@@ -315,10 +358,25 @@
         return;
       }
 
-      // Prevent removing admin keys
-      if (ADMIN_KEYS.includes(key)) {
-        this.showError('Cannot remove admin keys');
+      // Check if trying to remove an owner key
+      if (OWNER_KEYS.includes(key)) {
+        this.showError('Cannot remove owner keys');
+        removeKeyWarning.style.display = 'none';
         return;
+      }
+
+      // Check if trying to remove an admin key
+      if (ADMIN_KEYS.includes(key)) {
+        if (!this.isOwner) {
+          this.showError('Only owners can remove admin keys');
+          removeKeyWarning.style.display = 'block';
+          setTimeout(() => {
+            removeKeyWarning.style.display = 'none';
+          }, 5000);
+          return;
+        }
+        // Owner can remove admin keys
+        console.log('👑 Owner removing admin key:', key);
       }
 
       if (!confirm(`Are you sure you want to remove key: ${key}?`)) {
@@ -336,6 +394,7 @@
 
         this.showSuccess('Key removed successfully!');
         removeKeyInput.value = '';
+        removeKeyWarning.style.display = 'none';
         console.log('🗑️ Key removed:', key);
       } catch (error) {
         console.error('❌ Error removing key:', error);
@@ -372,15 +431,32 @@
           html += '<div style="padding: 10px; opacity: 0.7;">No used keys found.</div>';
         } else {
           usedKeysList.forEach(([key, data]) => {
+            const isOwnerKey = OWNER_KEYS.includes(key);
             const isAdminKey = ADMIN_KEYS.includes(key);
+            const canRemove = this.isOwner || (!isAdminKey && !isOwnerKey);
+            
+            let borderColor = '#4f90ff';
+            let keyColor = '#4f90ff';
+            let badge = '';
+            
+            if (isOwnerKey) {
+              borderColor = '#ffd700';
+              keyColor = '#ffd700';
+              badge = '<span style="background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-left: 8px; font-weight: bold;">👑 OWNER</span>';
+            } else if (isAdminKey) {
+              borderColor = '#4f90ff';
+              keyColor = '#4f90ff';
+              badge = '<span style="background: rgba(79, 144, 255, 0.3); color: #4f90ff; font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-left: 8px; font-weight: bold;">🔑 ADMIN</span>';
+            }
+            
             html += `
-              <div style="background: rgba(255,255,255,0.05); padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 3px solid ${isAdminKey ? '#ffd700' : '#4f90ff'};">
+              <div style="background: rgba(255,255,255,0.05); padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 3px solid ${borderColor};">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                   <div>
-                    <strong style="color: ${isAdminKey ? '#ffd700' : '#4f90ff'};">${isAdminKey ? '👑 ' : ''}${key}</strong>
-                    ${isAdminKey ? '<span style="color: #ffd700; font-size: 12px; margin-left: 8px;">(ADMIN)</span>' : ''}
+                    <strong style="color: ${keyColor};">${key}</strong>
+                    ${badge}
                   </div>
-                  ${!isAdminKey ? `<button onclick="AdminPanel.quickRemoveKey('${key}')" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">Remove</button>` : ''}
+                  ${canRemove ? `<button onclick="AdminPanel.quickRemoveKey('${key}')" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">Remove</button>` : ''}
                 </div>
                 <div style="font-size: 12px; margin-top: 8px; opacity: 0.8;">
                   <div>Fingerprint: ${data.fingerprintId ? data.fingerprintId.substring(0, 16) + '...' : 'N/A'}</div>
@@ -411,7 +487,7 @@
                   <button onclick="AdminPanel.quickRemoveKey('${key}')" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">Remove</button>
                 </div>
                 <div style="font-size: 12px; margin-top: 8px; opacity: 0.8;">
-                  <div>Generated By: ${data.generatedBy || 'Unknown'}</div>
+                  <div>Generated By: ${data.generatedBy || 'Unknown'} ${data.generatedByRole ? `(${data.generatedByRole})` : ''}</div>
                   <div>Generated: ${data.generatedDate || 'N/A'}</div>
                   <div>Status: Not yet activated</div>
                 </div>
@@ -429,6 +505,20 @@
 
     quickRemoveKey: async function(key) {
       if (!this.isAdmin) return;
+      
+      // Check permissions
+      const isOwnerKey = OWNER_KEYS.includes(key);
+      const isAdminKey = ADMIN_KEYS.includes(key);
+      
+      if (isOwnerKey) {
+        this.showError('Cannot remove owner keys');
+        return;
+      }
+      
+      if (isAdminKey && !this.isOwner) {
+        this.showError('Only owners can remove admin keys');
+        return;
+      }
       
       if (!confirm(`Remove key: ${key}?`)) return;
       
@@ -562,14 +652,14 @@
 
           <div style="margin-top: 30px;">
             <h5>Website Usage:</h5>
-            ${Object.entries(websiteUsage).map(([site, count]) => `
+            ${Object.entries(websiteUsage).length > 0 ? Object.entries(websiteUsage).map(([site, count]) => `
               <div style="background: rgba(255,255,255,0.05); padding: 10px; margin-bottom: 8px; border-radius: 6px;">
                 <div style="display: flex; justify-content: space-between;">
                   <span>${site}</span>
                   <span style="color: #4f90ff; font-weight: bold;">${count} keys</span>
                 </div>
               </div>
-            `).join('')}
+            `).join('') : '<div style="padding: 10px; opacity: 0.7;">No website usage data.</div>'}
           </div>
         `;
 
