@@ -100,7 +100,11 @@ const games = [
 
 // ===== APP DATA =====
 const apps = [
-  { name: "Soundboard", image: "others/assets/images/apps/soundboard.png", url: "others/assets/apps/Soundboard.html" },
+  { name: "AI", image: "others/assets/images/apps/chippytea.png", url: "others/assets/apps/clai.html" },
+  { name: "EmulatorJS", image: "others/assets/images/apps/emulatorjs.png", url: "others/assets/apps/clemujs.html" },
+  { name: "Ruffle", image: "others/assets/images/apps/ruffle.png", url: "others/assets/apps/clruffle.html" },
+  { name: "Sandstone", image: "others/assets/images/apps/sandstone.jpg", url: "others/assets/apps/Soundboard.html" },
+  { name: "Silk", image: "others/assets/images/apps/silk.jpg", url: "others/assets/apps/Soundboard.html" },
   { name: "Soundcloud", image: "others/assets/images/apps/soundcloud.png", url: "others/assets/apps/soundcloud.html" },
   { name: "Vscode", image: "others/assets/images/apps/vscode.jpeg", url: "others/assets/apps/vscode.html" },
   { name: "YouTube", image: "/others/assets/images/apps/youtube.png", url: "/others/assets/apps/yt.html"},
