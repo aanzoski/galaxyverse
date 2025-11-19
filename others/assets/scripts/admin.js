@@ -273,6 +273,12 @@
       }
     },
 
+    isValidFirebaseKey: function(key) {
+      // Firebase Realtime Database keys cannot contain: . $ # [ ] / \ or quotes
+      const invalidChars = /[.$#\[\]\/\\'"]/;
+      return !invalidChars.test(key);
+    },
+
     generateKey: function() {
       if (!this.isAdmin) return;
       
@@ -286,6 +292,13 @@
       // Copy to clipboard
       if (window.KeyGenerator) {
         window.KeyGenerator.copyToClipboard(key);
+      } else {
+        // Fallback clipboard copy
+        try {
+          navigator.clipboard.writeText(key);
+        } catch (err) {
+          console.warn('Could not copy to clipboard:', err);
+        }
       }
       
       this.showSuccess('Key generated and copied to clipboard!');
@@ -293,7 +306,8 @@
     },
 
     fallbackGenerateKey: function() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&*^#$';
+      // Remove Firebase forbidden characters: . $ # [ ] / \ and quotes
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&*^';
       let key = '';
       for (let i = 0; i < 32; i++) {
         key += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -317,6 +331,12 @@
         return;
       }
 
+      // Validate Firebase key format
+      if (!this.isValidFirebaseKey(key)) {
+        this.showError('Key contains invalid characters (. $ # [ ] / \\ or quotes)');
+        return;
+      }
+
       try {
         const database = firebase.database();
         
@@ -324,6 +344,13 @@
         const snapshot = await database.ref('usedKeys/' + key).once('value');
         if (snapshot.exists()) {
           this.showError('Key already exists');
+          return;
+        }
+
+        // Check generated keys too
+        const genSnapshot = await database.ref('generatedKeys/' + key).once('value');
+        if (genSnapshot.exists()) {
+          this.showError('Key already exists in generated keys');
           return;
         }
 
@@ -355,6 +382,12 @@
 
       if (!key) {
         this.showError('Please enter a key to remove');
+        return;
+      }
+
+      // Validate Firebase key format
+      if (!this.isValidFirebaseKey(key)) {
+        this.showError('Key contains invalid characters (. $ # [ ] / \\ or quotes)');
         return;
       }
 
@@ -505,6 +538,12 @@
 
     quickRemoveKey: async function(key) {
       if (!this.isAdmin) return;
+      
+      // Validate Firebase key format
+      if (!this.isValidFirebaseKey(key)) {
+        this.showError('Key contains invalid characters');
+        return;
+      }
       
       // Check permissions
       const isOwnerKey = OWNER_KEYS.includes(key);
