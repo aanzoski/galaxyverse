@@ -174,7 +174,7 @@
       }
     },
 
-    login: function() {
+    login: async function() {
       const adminKeyInput = document.getElementById('admin-key-input');
       const adminError = document.getElementById('admin-error');
       const key = adminKeyInput.value.trim();
@@ -206,9 +206,42 @@
         return;
       }
 
-      // Invalid key
-      this.showError('Invalid key');
-      adminKeyInput.value = '';
+      // Check Firebase for valid keys (both used and generated)
+      try {
+        const database = firebase.database();
+        
+        // Check in usedKeys
+        const usedSnapshot = await database.ref('usedKeys/' + key).once('value');
+        if (usedSnapshot.exists()) {
+          this.isOwner = false;
+          this.isAdmin = false;
+          this.userRole = 'USER';
+          this.currentAdminKey = key;
+          this.showError('This is a user key, not an admin key');
+          adminKeyInput.value = '';
+          return;
+        }
+
+        // Check in generatedKeys
+        const genSnapshot = await database.ref('generatedKeys/' + key).once('value');
+        if (genSnapshot.exists()) {
+          this.isOwner = false;
+          this.isAdmin = false;
+          this.userRole = 'USER';
+          this.currentAdminKey = key;
+          this.showError('This is a user key, not an admin key');
+          adminKeyInput.value = '';
+          return;
+        }
+
+        // Invalid key - not found anywhere
+        this.showError('Invalid key');
+        adminKeyInput.value = '';
+      } catch (error) {
+        console.error('❌ Error checking key:', error);
+        this.showError('Error validating key');
+        adminKeyInput.value = '';
+      }
     },
 
     showPanel: function(key, role) {
