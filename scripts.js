@@ -478,7 +478,8 @@ const KeyGenerator = {
             font-size: 32px;
             margin: 0 0 10px 0;
             font-weight: 700;
-          ">GalaxyVerse</h1>
+          ">GalaxyVerse</h1><br>
+          <h1>NEW WEBSITE COMING SOON ASK OWNER FOR INFO</h1>
           
           <p style="
             color: #9ca3af;
