@@ -391,7 +391,6 @@ const KeyGenerator = {
       'flLqsmdXrkI60LINjP78n95W2i7cUkmy',
       '7pirAj7WOB8Oz6HNa4Ou0tQASNuostGX',
       // Free keys
-      '67676767',
       '414141414141',
       'whowantsthiskey',
       'version3published',
@@ -479,7 +478,7 @@ const KeyGenerator = {
             margin: 0 0 10px 0;
             font-weight: 700;
           ">GalaxyVerse</h1><br>
-          <h1>NEW WEBSITE COMING SOON ASK OWNER FOR INFO</h1>
+          <h1>WEBSITE IS BEING DELETED AND NEW ONE IS COMING</h1>
           
           <p style="
             color: #9ca3af;
