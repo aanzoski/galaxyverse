@@ -10,7 +10,7 @@ if (window.GVerseConsole && !window.GVerseConsole.initialized) {
 }
 
 // ===== CONSOLE INTEGRATION =====
-console.log('📦 Loading scripts.js with Fingerprint ID System...');
+console.log('📦 Loading scripts.js...');
 console.log('🔍 Checking console status:', window.GVerseConsole ? 'Available' : 'Not loaded');
 
 // ===== ALLOWED DOMAINS FOR AUTO-REDIRECT =====
@@ -34,847 +34,41 @@ function isOnAllowedDomain() {
 // ===== SEASONAL THEME SYSTEM (BUILT-IN) =====
 function getSeasonalTheme() {
   const now = new Date();
-  const year = now.getFullYear();
   const month = now.getMonth();
   const day = now.getDate();
   
-  if (year === 2025 && month === 9 && day >= 27 && day <= 30) {
+  // Halloween: October 20 - November 2
+  if ((month === 9 && day >= 20) || (month === 10 && day <= 2)) {
     console.log('🎃 Halloween season detected!');
     return 'halloween';
   }
   
-  if (year === 2025 && ((month === 10 && day >= 1) || month === 11)) {
+  // Christmas: December 1 - January 5
+  if (month === 11 || (month === 0 && day <= 5)) {
     console.log('🎄 Christmas season detected!');
     return 'christmas';
   }
   
-  if (year >= 2026) {
-    console.log('✨ Default season');
-    return 'original';
+  // Spring: March 20 - June 20
+  if (month > 1 && month < 5 || (month === 1 && day >= 20) || (month === 5 && day <= 20)) {
+    console.log('🌸 Spring season detected!');
+    return 'ocean'; // Fresh, light theme for spring
   }
   
-  return 'original';
+  // Summer: June 21 - September 22
+  if (month > 5 && month < 8 || (month === 5 && day >= 21) || (month === 8 && day <= 22)) {
+    console.log('☀️ Summer season detected!');
+    return 'light'; // Bright theme for summer
+  }
+  
+  console.log('✨ Default modern theme');
+  return 'modern';
 }
 
 function shouldAutoApplySeasonalTheme() {
   const autoApply = localStorage.getItem('autoApplySeasonalThemes');
   return autoApply !== 'false';
 }
-
-// ===== WEBSITEKEYTRACKER.JS =====
-(function() {
-  window.WebsiteKeyTracker = {
-    initialized: false,
-    
-    init: function() {
-      if (this.initialized) return;
-      this.initialized = true;
-      console.log('🔍 WebsiteKeyTracker initialized (v5.0 - Fingerprint ID)');
-    },
-    
-    trackKeyUsage: async function(key, website, fingerprintId) {
-      try {
-        if (typeof firebase === 'undefined' || !firebase.database) {
-          console.error('❌ Firebase not available for tracking');
-          return;
-        }
-        
-        const database = firebase.database();
-        const trackingRef = database.ref('keyTracking/' + key + '/' + Date.now());
-        
-        await trackingRef.set({
-          website: website,
-          fingerprintId: fingerprintId ? fingerprintId.substring(0, 16) + '...' : 'N/A',
-          timestamp: Date.now(),
-          date: new Date().toISOString(),
-          action: 'access',
-          authMethod: 'fingerprint'
-        });
-        
-        console.log('✅ Key usage tracked with Fingerprint ID:', key, 'on', website);
-      } catch (error) {
-        console.error('❌ Error tracking key usage:', error);
-      }
-    }
-  };
-  
-  window.WebsiteKeyTracker.init();
-})();
-
-// ===== BROWSER FINGERPRINT ID GENERATOR =====
-const FingerprintManager = {
-  generateFingerprint: async function() {
-    const components = [];
-    
-    // Screen resolution
-    components.push(screen.width + 'x' + screen.height + 'x' + screen.colorDepth);
-    
-    // Timezone
-    components.push(new Date().getTimezoneOffset());
-    
-    // Language
-    components.push(navigator.language);
-    
-    // Platform
-    components.push(navigator.platform);
-    
-    // User agent
-    components.push(navigator.userAgent);
-    
-    // Hardware concurrency
-    components.push(navigator.hardwareConcurrency || 'unknown');
-    
-    // Device memory
-    components.push(navigator.deviceMemory || 'unknown');
-    
-    // Canvas fingerprint
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.textBaseline = 'top';
-    ctx.font = '14px Arial';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillStyle = '#f60';
-    ctx.fillRect(125, 1, 62, 20);
-    ctx.fillStyle = '#069';
-    ctx.fillText('GalaxyVerse', 2, 15);
-    ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-    ctx.fillText('Fingerprint', 4, 17);
-    components.push(canvas.toDataURL());
-    
-    // WebGL fingerprint
-    try {
-      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      if (gl) {
-        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-        if (debugInfo) {
-          components.push(gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL));
-          components.push(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL));
-        }
-      }
-    } catch (e) {
-      components.push('webgl-error');
-    }
-    
-    // Plugins
-    const plugins = [];
-    for (let i = 0; i < navigator.plugins.length; i++) {
-      plugins.push(navigator.plugins[i].name);
-    }
-    components.push(plugins.join(','));
-    
-    // Touch support
-    components.push('ontouchstart' in window);
-    
-    // Audio context fingerprint
-    try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const analyser = audioContext.createAnalyser();
-      const gainNode = audioContext.createGain();
-      const scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
-      
-      gainNode.gain.value = 0;
-      oscillator.connect(analyser);
-      analyser.connect(scriptProcessor);
-      scriptProcessor.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.start(0);
-      const audioFingerprint = analyser.frequencyBinCount.toString();
-      components.push(audioFingerprint);
-      
-      oscillator.stop();
-      audioContext.close();
-    } catch (e) {
-      components.push('audio-error');
-    }
-    
-    // Generate hash
-    const fingerprint = components.join('|||');
-    const hash = await this.hashString(fingerprint);
-    
-    return hash;
-  },
-  
-  hashString: async function(str) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(str);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
-  }
-};
-
-// ===== KEY GENERATOR =====
-const KeyGenerator = {
-  generate: function(length = 32) {
-    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const numbers = '0123456789';
-    // FIXED: Removed Firebase forbidden characters: . $ # [ ] / \ and quotes
-    const special = '&*^';
-    const allChars = lowercase + uppercase + numbers + special;
-    
-    let key = '';
-    
-    // Ensure at least one of each type
-    key += lowercase[Math.floor(Math.random() * lowercase.length)];
-    key += uppercase[Math.floor(Math.random() * uppercase.length)];
-    key += numbers[Math.floor(Math.random() * numbers.length)];
-    key += special[Math.floor(Math.random() * special.length)];
-    
-    // Fill the rest randomly
-    for (let i = key.length; i < length; i++) {
-      key += allChars[Math.floor(Math.random() * allChars.length)];
-    }
-    
-    // Shuffle the key
-    return key.split('').sort(() => Math.random() - 0.5).join('');
-  },
-  
-  copyToClipboard: function(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => {
-        console.log('✅ Key copied to clipboard');
-        return true;
-      }).catch(err => {
-        console.error('❌ Failed to copy:', err);
-        return false;
-      });
-    } else {
-      // Fallback method
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      try {
-        document.execCommand('copy');
-        console.log('✅ Key copied to clipboard (fallback)');
-        return true;
-      } catch (err) {
-        console.error('❌ Failed to copy:', err);
-        return false;
-      } finally {
-        document.body.removeChild(textarea);
-      }
-    }
-  }
-};
-
-// ===== FIREBASE CROSS-DOMAIN KEY SYSTEM WITH FINGERPRINT ID =====
-(function() {
-  console.log('🔑 Initializing Fingerprint ID System...');
-  console.log('🛡️ Security: Browser Fingerprint Authentication');
-  
-  // ===== DOMAIN NORMALIZATION =====
-  function normalizeHostname(hostname) {
-    hostname = hostname.split(':')[0].toLowerCase();
-    
-    const galaxyverseDomains = [
-      'schoologydashboard.org',
-      'ahs.schoologydashboard.org',
-      'learn.schoologydashboard.org',
-      'gverse.schoologydashboard.org',
-      'galaxyverse-c1v.pages.dev',
-      'galaxyverse.org',
-      'schoologycourses.org',
-      'cloudflare.net'
-    ];
-    
-    for (const domain of galaxyverseDomains) {
-      if (hostname.includes(domain.replace(/\./g, ''))) {
-        return 'galaxyverse-network';
-      }
-    }
-    
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'galaxyverse-network';
-    }
-    
-    return hostname;
-  }
-
-  function getActualWebsite(hostname) {
-    hostname = hostname.split(':')[0].toLowerCase();
-    
-    if (hostname.includes('cloudflare.net')) {
-      if (hostname.includes('ahs')) return 'ahs.schoologydashboard.org';
-      if (hostname.includes('learn')) return 'learn.schoologydashboard.org';
-      if (hostname.includes('gverse')) return 'gverse.schoologydashboard.org';
-      return 'schoologydashboard.org';
-    }
-    
-    if (hostname.includes('ahs.schoologydashboard')) return 'ahs.schoologydashboard.org';
-    if (hostname.includes('learn.schoologydashboard')) return 'learn.schoologydashboard.org';
-    if (hostname.includes('gverse.schoologydashboard')) return 'gverse.schoologydashboard.org';
-    if (hostname.includes('schoologydashboard')) return 'schoologydashboard.org';
-    if (hostname.includes('galaxyverse-c1v')) return 'galaxyverse-c1v.pages.dev';
-    if (hostname.includes('galaxyverse.org')) return 'galaxyverse.org';
-    if (hostname.includes('schoologycourses')) return 'schoologycourses.org';
-    if (hostname === 'localhost' || hostname === '127.0.0.1') return 'localhost';
-    
-    return hostname;
-  }
-
-  function waitForFirebase(callback, maxAttempts = 50) {
-    let attempts = 0;
-    const checkFirebase = setInterval(() => {
-      attempts++;
-      if (typeof firebase !== 'undefined' && firebase.apps) {
-        clearInterval(checkFirebase);
-        console.log('✅ Firebase detected');
-        callback();
-      } else if (attempts >= maxAttempts) {
-        clearInterval(checkFirebase);
-        console.error('❌ Firebase failed to load');
-        callback();
-      }
-    }, 100);
-  }
-
-  waitForFirebase(async function() {
-    if (typeof firebase === 'undefined') {
-      console.warn('⚠️ Firebase not available, running in offline mode');
-      return;
-    }
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBEAf_wxxWQtaYdIfgKTTl5ls5o7e3qfAU",
-      authDomain: "galaxyverse-keys.firebaseapp.com",
-      databaseURL: "https://galaxyverse-keys-default-rtdb.firebaseio.com",
-      projectId: "galaxyverse-keys",
-      storageBucket: "galaxyverse-keys.firebasestorage.app",
-      messagingSenderId: "571215796975",
-      appId: "1:571215796975:web:820d004292cb4159f1d91a",
-    };
-
-    try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      console.log('✅ Firebase initialized successfully');
-    } catch (initError) {
-      console.error('❌ Firebase initialization error:', initError);
-      return;
-    }
-
-    const database = firebase.database();
-    
-    database.ref('.info/connected').once('value')
-      .then(() => console.log('✅ Firebase database connected'))
-      .catch(err => console.error('❌ Firebase database connection failed:', err));
-
-    const validKeys = [
-      // DEVS KEYS
-      'ghostisnot',
-      'davidsbackupkey',
-      'azthedev',
-      'aziscoolbro',
-      'aanzoski',
-      'MichaelIsKronos',
-      'jordanthedev',
-      'devinisahuman',
-      // Contributor Keys
-      'darielis67age',
-      'googlegemini',
-      'someonecanhavethiskey',
-      // PAID KEYS
-      'Rh8xq1FtfFK2q5RQlSVs18TIHrIPJozX',
-      '3rE09eoKPls1IMjdnI1w8HToYTDLWmRq',
-      '19EhZSE1nIAUmQ9nM3gKAZP3wLuqQl7s',
-      'fYINFx0X4bcMWb2524J8EmLlW883X97h',
-      'SRkAQIB6X3fkpiAV5t3bxMmzvTXjMfu2',
-      'dWhlBziFTiQU8Q8M2K8L7zP6rN0wwW6Z',
-      'flLqsmdXrkI60LINjP78n95W2i7cUkmy',
-      '7pirAj7WOB8Oz6HNa4Ou0tQASNuostGX',
-      // Free keys
-      '414141414141',
-      'whowantsthiskey',
-      'version3published',
-      // Specified Friend keys
-      'osZ9O36kX99k82',
-      'b7Tvc9Qu1x0M2X',
-      'e6bLi8IG00TV53',
-      'oB3Yv2zy25bV8R',
-      // Made by az bro 
-      'jordanisaskid67',
-      'azisaskid41',
-      'shortsluis',
-      'calderonisbadatsoccer',
-      'CanNeverGetCorrectSleep',
-      // Uh idek for Hector
-      'WeloveHector',
-      'domainuse',
-      'jordanproskid'
-    ];
-
-    async function initializeKeySystem() {
-      const normalizedSite = normalizeHostname(window.location.hostname || 'localhost');
-      const actualSite = getActualWebsite(window.location.hostname || 'localhost');
-      console.log('🌐 Network:', normalizedSite);
-      console.log('🌐 Current domain:', actualSite);
-      
-      // Generate fingerprint
-      console.log('🔐 Generating browser fingerprint...');
-      const fingerprintId = await FingerprintManager.generateFingerprint();
-      console.log('✅ Fingerprint generated:', fingerprintId.substring(0, 16) + '...');
-      
-      // ALWAYS show key entry screen (no auto-login)
-      console.log('🔐 Showing key entry screen');
-      showKeyEntryScreen(fingerprintId);
-    }
-
-    function showKeyEntryScreen(fingerprintId) {
-      console.log('🔐 Showing key entry screen with Fingerprint ID');
-      
-      const keyOverlay = document.createElement('div');
-      keyOverlay.id = 'galaxyverse-key-overlay';
-      keyOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 999999;
-        font-family: 'Roboto', sans-serif;
-      `;
-
-      keyOverlay.innerHTML = `
-        <div style="
-          background: rgba(30, 36, 51, 0.95);
-          border: 2px solid #4f90ff;
-          border-radius: 20px;
-          padding: 40px;
-          box-shadow: 0 15px 50px rgba(79, 144, 255, 0.3);
-          text-align: center;
-          max-width: 550px;
-          width: 90%;
-        ">
-          <div style="
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #4f90ff, #9d4edd);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            box-shadow: 0 8px 20px rgba(79, 144, 255, 0.4);
-          ">
-            🔐
-          </div>
-          
-          <h1 style="
-            color: #e0e6f1;
-            font-size: 32px;
-            margin: 0 0 10px 0;
-            font-weight: 700;
-          ">GalaxyVerse</h1><br>
-          <h1>WEBSITE IS BEING DELETED AND NEW ONE IS COMING</h1>
-          
-          <p style="
-            color: #9ca3af;
-            font-size: 16px;
-            margin: 0 0 10px 0;
-          ">Enter your access key to continue</p>
-          
-          <div style="
-            background: rgba(79, 144, 255, 0.1);
-            border: 1px solid rgba(79, 144, 255, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #9ca3af;
-          ">
-            <div style="margin-bottom: 8px; color: #4f90ff; font-weight: bold;">🔐 Fingerprint ID Security</div>
-            <div style="font-size: 12px; text-align: left; padding: 0 10px;">
-              <div style="margin: 5px 0;">✅ Saul is tung tung sahur</div>
-              <div style="margin: 5px 0;">❌ Joseluis owes me $100</div>
-              <div style="margin: 5px 0;">❌ Jacob Cuellar I need my $5k back</div>
-              <div style="margin: 5px 0;">❌ Fabian I need my Hellcat Back pls</div>
-              <div style="margin: 5px 0;">👑 Admin Panel for Admins duh</div>
-              <div style="margin: 10px 0; padding-top: 10px; border-top: 1px solid rgba(79, 144, 255, 0.2); font-size: 11px; color: #ff9966;">
-                Your fingerprint: ${fingerprintId.substring(0, 8)}...${fingerprintId.substring(fingerprintId.length - 8)}
-              </div>
-            </div>
-          </div>
-          
-          <p style="
-            color: #9ca3af;
-            font-size: 14px;
-            margin-bottom: 20px;
-          ">
-          <a href="https://docs.google.com/document/d/1RfHWPQ-8Kq2NDV6vxfOgquBqIKwp4OoL7K1NXkYLUEg/edit?usp=sharing" target="_blank" style="color: #4f90ff;">GalaxyVerse Policy</a><br>
-          V5.0.0 - Fingerprint ID System</p>
-          
-          <input type="text" id="keyInput" placeholder="Enter your key" style="
-            width: 100%;
-            padding: 15px;
-            font-size: 16px;
-            border: 2px solid #38415d;
-            border-radius: 10px;
-            background: #121826;
-            color: #e0e6f1;
-            outline: none;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-          " />
-          
-          <button id="submitKey" style="
-            width: 100%;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #4f90ff, #9d4edd);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(79, 144, 255, 0.3);
-            margin-bottom: 10px;
-          ">Verify Key</button>
-          
-          <button id="generateKeyBtn" style="
-            width: 100%;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-            margin-bottom: 10px;
-          ">🔑 Generate New Key</button>
-          
-          <button id="testConnectionBtn" style="
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            background: transparent;
-            color: #4f90ff;
-            border: 1px solid #4f90ff;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-          ">Test Connection</button>
-          
-          <div id="keyError" style="
-            color: #ff4444;
-            margin-top: 15px;
-            font-size: 14px;
-            display: none;
-          "></div>
-          
-          <div id="connectionStatus" style="
-            margin-top: 15px;
-            font-size: 12px;
-            color: #9ca3af;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-          ">
-            <span id="statusDot" style="
-              width: 8px;
-              height: 8px;
-              border-radius: 50%;
-              background: #4ade80;
-              display: inline-block;
-            "></span>
-            <span id="statusText">Connected</span>
-          </div>
-          
-          <div style="
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #38415d;
-            color: #6b7280;
-            font-size: 12px;
-          ">
-            🔐 Fingerprint ID Protection<br>
-            🛡️ Device-specific authentication<br>
-            🔑 Manual key entry required each session<br>
-            ⚠️ Each key is bound to your browser fingerprint<br>
-            ✨ Works across ALL GalaxyVerse domains<br><br>
-            Contact admins for lifetime key ($5)
-          </div>
-        </div>
-      `;
-
-      document.body.appendChild(keyOverlay);
-      
-      const mainContent = document.getElementById('app') || document.body;
-      if (mainContent && mainContent !== document.body) {
-        mainContent.style.filter = 'blur(10px)';
-        mainContent.style.pointerEvents = 'none';
-      }
-
-      const keyInput = document.getElementById('keyInput');
-      const submitBtn = document.getElementById('submitKey');
-      const generateKeyBtn = document.getElementById('generateKeyBtn');
-      const testConnectionBtn = document.getElementById('testConnectionBtn');
-      const keyError = document.getElementById('keyError');
-      const statusDot = document.getElementById('statusDot');
-      const statusText = document.getElementById('statusText');
-
-      database.ref('.info/connected').on('value', (snapshot) => {
-        if (snapshot.val() === true) {
-          statusDot.style.background = '#4ade80';
-          statusText.textContent = 'Connected';
-        } else {
-          statusDot.style.background = '#ff4444';
-          statusText.textContent = 'Disconnected';
-        }
-      });
-
-      // Generate Key Button
-      generateKeyBtn.addEventListener('click', function() {
-        const newKey = KeyGenerator.generate();
-        keyInput.value = newKey;
-        KeyGenerator.copyToClipboard(newKey);
-        keyError.style.color = '#4ade80';
-        keyError.textContent = '✅ New key generated and copied to clipboard!';
-        keyError.style.display = 'block';
-        console.log('🔑 Generated new key:', newKey);
-      });
-
-      testConnectionBtn.addEventListener('click', async function() {
-        testConnectionBtn.disabled = true;
-        testConnectionBtn.textContent = 'Testing...';
-        keyError.style.display = 'none';
-        
-        try {
-          await database.ref('.info/connected').once('value');
-          await database.ref('usedKeys').limitToFirst(1).once('value');
-          
-          const testRef = database.ref('connectionTest/' + Date.now());
-          await testRef.set({ test: true, timestamp: Date.now() });
-          await testRef.remove();
-          
-          keyError.style.color = '#4ade80';
-          keyError.textContent = '✅ Connection working! Fingerprint ID ready.';
-          keyError.style.display = 'block';
-          
-          testConnectionBtn.textContent = 'Test Connection';
-          testConnectionBtn.disabled = false;
-        } catch (error) {
-          console.error('❌ Connection test failed:', error);
-          keyError.style.color = '#ff4444';
-          keyError.textContent = `❌ Connection failed: ${error.message}`;
-          keyError.style.display = 'block';
-          testConnectionBtn.textContent = 'Test Connection';
-          testConnectionBtn.disabled = false;
-        }
-      });
-
-      submitBtn.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-2px)';
-        this.style.boxShadow = '0 6px 20px rgba(79, 144, 255, 0.5)';
-      });
-
-      submitBtn.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = '0 4px 15px rgba(79, 144, 255, 0.3)';
-      });
-
-      generateKeyBtn.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-2px)';
-        this.style.boxShadow = '0 6px 20px rgba(34, 197, 94, 0.5)';
-      });
-
-      generateKeyBtn.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = '0 4px 15px rgba(34, 197, 94, 0.3)';
-      });
-
-      keyInput.addEventListener('focus', function() {
-        this.style.borderColor = '#4f90ff';
-        this.style.boxShadow = '0 0 0 3px rgba(79, 144, 255, 0.1)';
-      });
-
-      keyInput.addEventListener('blur', function() {
-        this.style.borderColor = '#38415d';
-        this.style.boxShadow = 'none';
-      });
-
-      async function verifyKey() {
-        const enteredKey = keyInput.value.trim();
-        
-        if (!enteredKey) {
-          keyError.textContent = '❌ Please enter a key';
-          keyError.style.color = '#ff4444';
-          keyError.style.display = 'block';
-          keyInput.style.borderColor = '#ff4444';
-          return;
-        }
-
-        if (!validKeys.includes(enteredKey)) {
-          keyError.textContent = '❌ Invalid key';
-          keyError.style.color = '#ff4444';
-          keyError.style.display = 'block';
-          keyInput.style.borderColor = '#ff4444';
-          keyInput.value = '';
-          return;
-        }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Verifying...';
-        submitBtn.style.cursor = 'wait';
-        
-        console.log('🔑 Verifying key with Fingerprint ID:', enteredKey);
-
-        try {
-          const normalizedSite = normalizeHostname(window.location.hostname || 'localhost');
-          const actualSite = getActualWebsite(window.location.hostname || 'localhost');
-          
-          await database.ref('.info/connected').once('value');
-          
-          const keyRef = database.ref('usedKeys/' + enteredKey);
-          const snapshot = await keyRef.once('value');
-          
-          if (snapshot.exists()) {
-            const keyData = snapshot.val();
-            
-            // Check if fingerprint matches
-            if (keyData.fingerprintId && keyData.fingerprintId !== fingerprintId) {
-              keyError.textContent = '🚫 This key is registered to a different device/browser.';
-              keyError.style.color = '#ff4444';
-              keyError.style.display = 'block';
-              keyInput.style.borderColor = '#ff4444';
-              keyInput.value = '';
-              submitBtn.disabled = false;
-              submitBtn.textContent = 'Verify Key';
-              submitBtn.style.cursor = 'pointer';
-              
-              await database.ref('securityLogs/fingerprintMismatch/' + Date.now()).set({
-                key: enteredKey,
-                expectedFingerprint: keyData.fingerprintId?.substring(0, 16) + '...',
-                attemptedFingerprint: fingerprintId.substring(0, 16) + '...',
-                timestamp: Date.now(),
-                date: new Date().toISOString(),
-                severity: 'HIGH'
-              });
-              
-              return;
-            }
-            
-            // Fingerprint matches or not set yet - update and grant access
-            console.log('✅ Key verified for this device');
-            
-            const websites = keyData.websites || [];
-            if (!websites.includes(actualSite)) {
-              await keyRef.update({
-                websites: [...websites, actualSite],
-                lastAccessed: new Date().toISOString(),
-                lastAccessedSite: actualSite,
-                timesAccessed: (keyData.timesAccessed || 0) + 1,
-                fingerprintId: fingerprintId
-              });
-            } else {
-              await keyRef.update({
-                timesAccessed: (keyData.timesAccessed || 0) + 1,
-                lastAccessed: new Date().toISOString(),
-                lastAccessedSite: actualSite,
-                fingerprintId: fingerprintId
-              });
-            }
-          } else {
-            // New key - register it
-            console.log('🆕 New key! Registering with Fingerprint ID...');
-            
-            await keyRef.set({
-              used: true,
-              fingerprintId: fingerprintId,
-              firstUsedOn: actualSite,
-              firstUsedDate: new Date().toISOString(),
-              firstUsedTimestamp: Date.now(),
-              websites: [actualSite],
-              timesAccessed: 1,
-              lastAccessed: new Date().toISOString(),
-              lastAccessedSite: actualSite,
-              network: normalizedSite,
-              claimedAcrossNetwork: true,
-              authMethod: 'fingerprint',
-              securityLevel: 'high'
-            });
-          }
-
-          if (typeof window.WebsiteKeyTracker !== 'undefined') {
-            window.WebsiteKeyTracker.trackKeyUsage(enteredKey, actualSite, fingerprintId);
-          }
-
-          keyError.style.color = '#4ade80';
-          keyError.textContent = '✅ Access granted! Welcome to GalaxyVerse.';
-          keyError.style.display = 'block';
-          keyInput.style.borderColor = '#4ade80';
-          submitBtn.style.background = 'linear-gradient(135deg, #4ade80, #22c55e)';
-          submitBtn.textContent = 'Success!';
-
-          console.log('✅ Key verified successfully');
-          console.log('🔐 Fingerprint ID:', fingerprintId.substring(0, 16) + '...');
-
-          setTimeout(() => {
-            keyOverlay.style.opacity = '0';
-            keyOverlay.style.transition = 'opacity 0.5s ease';
-            setTimeout(() => {
-              keyOverlay.remove();
-              const mainContent = document.getElementById('app') || document.body;
-              if (mainContent && mainContent !== document.body) {
-                mainContent.style.filter = '';
-                mainContent.style.pointerEvents = '';
-              }
-            }, 500);
-          }, 1500);
-        } catch (error) {
-          console.error('❌ Firebase error:', error);
-          
-          let errorMessage = '❌ Connection error. ';
-          if (error.code === 'PERMISSION_DENIED') {
-            errorMessage += 'Database access denied.';
-          } else if (error.message && error.message.includes('network')) {
-            errorMessage += 'Network error.';
-          } else {
-            errorMessage += error.message || 'Please try again.';
-          }
-          
-          keyError.textContent = errorMessage;
-          keyError.style.color = '#ff4444';
-          keyError.style.display = 'block';
-          keyInput.style.borderColor = '#ff4444';
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Verify Key';
-          submitBtn.style.cursor = 'pointer';
-        }
-      }
-
-      submitBtn.addEventListener('click', verifyKey);
-
-      keyInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          verifyKey();
-        }
-      });
-
-      keyInput.focus();
-    }
-
-    initializeKeySystem();
-  });
-})();
 
 // ===== ABOUT:BLANK CLOAKING =====
 (function() {
@@ -920,22 +114,117 @@ const presets = {
 
 // ===== THEME CONFIGURATIONS =====
 const themes = {
-  original: { bgColor: '#121826', navColor: '#1e2433', accentColor: '#4f90ff', textColor: '#e0e6f1', borderColor: '#38415d', hoverBg: '#2a2f48', btnBg: '#3b466f', btnHoverBg: '#4f90ff' },
-  halloween: { bgColor: '#0a0a0a', navColor: '#1a0f0a', accentColor: '#ff6600', textColor: '#ffa500', borderColor: '#331a00', hoverBg: '#2a1a0f', btnBg: '#4a2a1a', btnHoverBg: '#ff6600' },
-  christmas: { bgColor: '#0a1a0a', navColor: '#1a2e1a', accentColor: '#c41e3a', textColor: '#f0f8ff', borderColor: '#2d5016', hoverBg: '#1f3d1f', btnBg: '#2d5016', btnHoverBg: '#c41e3a' },
-  dark: { bgColor: '#0a0a0a', navColor: '#1a1a1a', accentColor: '#00ff00', textColor: '#ffffff', borderColor: '#333333', hoverBg: '#2a2a2a', btnBg: '#262626', btnHoverBg: '#00ff00' },
-  light: { bgColor: '#f5f5f5', navColor: '#ffffff', accentColor: '#2563eb', textColor: '#1f2937', borderColor: '#e5e7eb', hoverBg: '#e5e7eb', btnBg: '#d1d5db', btnHoverBg: '#2563eb' },
-  midnight: { bgColor: '#0f0f23', navColor: '#1a1a2e', accentColor: '#9d4edd', textColor: '#e0e0e0', borderColor: '#3c3c5a', hoverBg: '#2a2a4e', btnBg: '#3c3c6f', btnHoverBg: '#9d4edd' },
-  ocean: { bgColor: '#001f3f', navColor: '#0a2f4f', accentColor: '#00d4ff', textColor: '#cfe2f3', borderColor: '#1a4f6f', hoverBg: '#1a3f5f', btnBg: '#2a5f7f', btnHoverBg: '#00d4ff' },
-  sunset: { bgColor: '#2d1b2e', navColor: '#3d2b3e', accentColor: '#ff6b9d', textColor: '#fce4ec', borderColor: '#5d4b5e', hoverBg: '#4d3b4e', btnBg: '#6d5b6e', btnHoverBg: '#ff6b9d' },
-  forest: { bgColor: '#1a2f1a', navColor: '#2a3f2a', accentColor: '#7cb342', textColor: '#e8f5e9', borderColor: '#3a5f3a', hoverBg: '#3a4f3a', btnBg: '#4a6f4a', btnHoverBg: '#7cb342' },
-  purple: { bgColor: '#1a0a2e', navColor: '#2a1a3e', accentColor: '#b744f7', textColor: '#f0e6ff', borderColor: '#4a3a5e', hoverBg: '#3a2a4e', btnBg: '#5a4a6e', btnHoverBg: '#b744f7' },
-  cyberpunk: { bgColor: '#0d0221', navColor: '#1a0b3a', accentColor: '#ff006e', textColor: '#00f5ff', borderColor: '#8338ec', hoverBg: '#2a1a4a', btnBg: '#3a2a5a', btnHoverBg: '#ff006e' },
-  matrix: { bgColor: '#000000', navColor: '#0a1a0a', accentColor: '#00ff41', textColor: '#00ff41', borderColor: '#003b00', hoverBg: '#0a2a0a', btnBg: '#1a3a1a', btnHoverBg: '#00ff41' },
-  neon: { bgColor: '#1a0033', navColor: '#2a0a4a', accentColor: '#ff00ff', textColor: '#00ffff', borderColor: '#4a1a6a', hoverBg: '#3a1a5a', btnBg: '#5a2a7a', btnHoverBg: '#ff00ff' },
-  fire: { bgColor: '#1a0a00', navColor: '#2a1a0a', accentColor: '#ff4500', textColor: '#ffe4b5', borderColor: '#4a2a1a', hoverBg: '#3a1a0a', btnBg: '#5a3a2a', btnHoverBg: '#ff4500' },
-  ice: { bgColor: '#0a1a2a', navColor: '#1a2a3a', accentColor: '#00bfff', textColor: '#e0f7ff', borderColor: '#2a3a4a', hoverBg: '#1a2a3a', btnBg: '#2a4a5a', btnHoverBg: '#00bfff' },
-  retro: { bgColor: '#2b1b17', navColor: '#3d2b27', accentColor: '#ff9966', textColor: '#ffeaa7', borderColor: '#5d4b47', hoverBg: '#4d3b37', btnBg: '#6d5b57', btnHoverBg: '#ff9966' }
+  // Modern Dark Theme (Default)
+  modern: { 
+    bgColor: '#0f172a', 
+    bgSecondary: '#1e293b',
+    navColor: '#1e1b4b', 
+    accentColor: '#7c3aed',
+    accentSecondary: '#a78bfa',
+    accentTertiary: '#4f46e5',
+    textColor: '#f8fafc', 
+    textMuted: '#94a3b8',
+    borderColor: '#334155', 
+    hoverBg: '#2e3a58', 
+    btnBg: '#334155', 
+    btnHoverBg: '#4f46e5',
+    glassBg: 'rgba(30, 41, 59, 0.8)',
+    glassBorder: 'rgba(124, 58, 237, 0.25)',
+    shadowGlow: '0 0 25px rgba(124, 58, 237, 0.4)'
+  },
+  
+  // Seasonal Themes
+  halloween: { 
+    bgColor: '#1a0a0a',
+    bgSecondary: '#2a1a1a',
+    navColor: '#2a0f0a', 
+    accentColor: '#ff6b00',
+    accentSecondary: '#ff9e4f',
+    accentTertiary: '#ff3d00',
+    textColor: '#ffd6a5',
+    textMuted: '#c8a17a',
+    borderColor: '#4a2a1a',
+    hoverBg: '#3a1a0a',
+    btnBg: '#4a2a1a',
+    btnHoverBg: '#ff6b00',
+    glassBg: 'rgba(42, 16, 10, 0.8)',
+    glassBorder: 'rgba(255, 107, 0, 0.25)',
+    shadowGlow: '0 0 25px rgba(255, 107, 0, 0.4)'
+  },
+  
+  christmas: { 
+    bgColor: '#0a1a12',
+    bgSecondary: '#1a2a22',
+    navColor: '#1a0a12', 
+    accentColor: '#e63946',
+    accentSecondary: '#ff758f',
+    accentTertiary: '#c1121f',
+    textColor: '#f8f9fa',
+    textMuted: '#a8c6a8',
+    borderColor: '#2a4a3a',
+    hoverBg: '#1a2a22',
+    btnBg: '#2a4a3a',
+    btnHoverBg: '#e63946',
+    glassBg: 'rgba(26, 42, 34, 0.8)',
+    glassBorder: 'rgba(230, 57, 70, 0.25)',
+    shadowGlow: '0 0 25px rgba(230, 57, 70, 0.4)'
+  },
+  
+  // Additional Theme Options
+  midnight: { 
+    bgColor: '#0f0f23',
+    bgSecondary: '#1a1a2e',
+    navColor: '#1a1b4b', 
+    accentColor: '#9d4edd',
+    accentSecondary: '#c77dff',
+    accentTertiary: '#7b2cbf',
+    textColor: '#e0e0e0',
+    textMuted: '#a0a0c0',
+    borderColor: '#3c3c5a',
+    hoverBg: '#2a2a4e',
+    btnBg: '#3c3c6f',
+    btnHoverBg: '#9d4edd',
+    glassBg: 'rgba(26, 26, 46, 0.8)',
+    glassBorder: 'rgba(157, 78, 221, 0.25)',
+    shadowGlow: '0 0 25px rgba(157, 78, 221, 0.4)'
+  },
+  
+  ocean: { 
+    bgColor: '#001f3f',
+    bgSecondary: '#0a2f4f',
+    navColor: '#0a1f4f', 
+    accentColor: '#00d4ff',
+    accentSecondary: '#7ae7ff',
+    accentTertiary: '#00a3cc',
+    textColor: '#cfe2f3',
+    textMuted: '#8fa8c7',
+    borderColor: '#1a4f6f',
+    hoverBg: '#1a3f5f',
+    btnBg: '#2a5f7f',
+    btnHoverBg: '#00d4ff',
+    glassBg: 'rgba(10, 47, 79, 0.8)',
+    glassBorder: 'rgba(0, 212, 255, 0.25)',
+    shadowGlow: '0 0 25px rgba(0, 212, 255, 0.4)'
+  },
+  
+  // Light Theme Variant
+  light: { 
+    bgColor: '#f8fafc',
+    bgSecondary: '#e2e8f0',
+    navColor: '#ffffff', 
+    accentColor: '#4f46e5',
+    accentSecondary: '#7c73e6',
+    accentTertiary: '#3b3bff',
+    textColor: '#1e293b',
+    textMuted: '#64748b',
+    borderColor: '#cbd5e1',
+    hoverBg: '#e2e8f0',
+    btnBg: '#e2e8f0',
+    btnHoverBg: '#4f46e5',
+    glassBg: 'rgba(255, 255, 255, 0.8)',
+    glassBorder: 'rgba(203, 213, 225, 0.5)',
+    shadowGlow: '0 0 15px rgba(99, 102, 241, 0.2)'
+  }
 };
 
 // ===== SNOW EFFECT =====
@@ -1007,12 +296,34 @@ function applyTabCloaking(title, favicon) {
 
 // ===== THEME SYSTEM =====
 function applyTheme(themeName) {
-  const theme = themes[themeName];
-  if (!theme) {
-    console.warn('⚠️ Theme not found:', themeName);
-    return;
-  }
+  const theme = themes[themeName] || themes.modern; // Fallback to modern theme
   console.log('🎨 Applying theme:', themeName);
+  
+  // Apply CSS variables
+  document.documentElement.style.setProperty('--bg-color', theme.bgColor);
+  document.documentElement.style.setProperty('--bg-secondary', theme.bgSecondary || theme.bgColor);
+  document.documentElement.style.setProperty('--nav-color', theme.navColor);
+  document.documentElement.style.setProperty('--accent-color', theme.accentColor);
+  document.documentElement.style.setProperty('--accent-secondary', theme.accentSecondary || theme.accentColor);
+  document.documentElement.style.setProperty('--accent-tertiary', theme.accentTertiary || theme.accentColor);
+  document.documentElement.style.setProperty('--text-color', theme.textColor);
+  document.documentElement.style.setProperty('--text-muted', theme.textMuted || theme.textColor + 'b3');
+  document.documentElement.style.setProperty('--border-color', theme.borderColor);
+  document.documentElement.style.setProperty('--hover-bg', theme.hoverBg);
+  document.documentElement.style.setProperty('--btn-bg', theme.btnBg);
+  document.documentElement.style.setProperty('--btn-hover-bg', theme.btnHoverBg || theme.accentColor);
+  document.documentElement.style.setProperty('--glass-bg', theme.glassBg || theme.navColor + 'cc');
+  document.documentElement.style.setProperty('--glass-border', theme.glassBorder || theme.accentColor + '40');
+  document.documentElement.style.setProperty('--shadow-glow', theme.shadowGlow || `0 0 25px ${theme.accentColor}66`);
+  
+  // Update meta theme color for mobile browsers
+  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+  if (metaThemeColor) {
+    metaThemeColor.setAttribute('content', theme.bgColor);
+  }
+  
+  // Save theme preference
+  localStorage.setItem('selectedTheme', themeName);
   const root = document.documentElement;
   root.style.setProperty('--bg-color', theme.bgColor);
   root.style.setProperty('--nav-color', theme.navColor);
@@ -1486,9 +797,8 @@ if (document.readyState === 'loading') {
 
 function initializeApp() {
   try {
-    console.log('🚀 Initializing GalaxyVerse with Fingerprint ID System...');
-    console.log('🛡️ Security: Browser Fingerprint Authentication');
-    console.log('🔑 Manual key entry required each session');
+    console.log('🚀 Initializing GalaxyVerse...');
+    console.log('✅ Free access enabled - No authentication required');
     console.log('📊 Console Status:', {
       available: !!window.GVerseConsole,
       initialized: window.GVerseConsole?.initialized || false,
@@ -1627,6 +937,7 @@ function initializeApp() {
   const websitesLink = document.getElementById('websitesLink');
   const settingsLink = document.getElementById('settingsLink');
   const aboutLink = document.getElementById('aboutLink');
+  const searchLink = document.getElementById('searchLink');
 
   if (homeLink) homeLink.addEventListener('click', (e) => { e.preventDefault(); showHome(); });
   if (gameLink) gameLink.addEventListener('click', (e) => { e.preventDefault(); showGames(); });
@@ -1634,6 +945,7 @@ function initializeApp() {
   if (websitesLink) websitesLink.addEventListener('click', (e) => { e.preventDefault(); showWebsites(); });
   if (settingsLink) settingsLink.addEventListener('click', (e) => { e.preventDefault(); showSettings(); });
   if (aboutLink) aboutLink.addEventListener('click', (e) => { e.preventDefault(); showAbout(); });
+  if (searchLink) searchLink.addEventListener('click', (e) => { e.preventDefault(); showSearch(); });
 
   // Back buttons
   const backToHomeGame = document.getElementById('backToHomeGame');
@@ -1693,16 +1005,14 @@ function initializeApp() {
     fullscreenBtn.addEventListener('click', toggleFullscreen);
   }
 
-  console.log('✅ GalaxyVerse initialized with Fingerprint ID System');
+  console.log('✅ GalaxyVerse initialized successfully');
   console.log('📊 Console active - Press Ctrl+Shift+K to toggle');
-  console.log('🛡️ Security: Browser Fingerprint Authentication');
-  console.log('🔑 Manual key entry required each session');
-  console.log('🔐 Each key is bound to your browser fingerprint');
-  console.log('🌐 Cross-domain system: Keys work automatically across ALL GalaxyVerse sites');
-  console.log('✨ Key generator available - Firebase compatible (no special chars: . $ # [ ] / \\ quotes)');
+  console.log('🎮 All features unlocked - No authentication required');
+  console.log('✨ Enjoy free access to all games, apps, and websites!');
   
   } catch (error) {
     console.error('❌ Critical error during initialization:', error);
     alert('An error occurred during initialization. Check console.');
   }
 }
+/* UPDATE THIS EVERTIME IT IS CHANGED EX: UPD 1 */
