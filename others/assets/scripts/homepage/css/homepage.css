@@ -1,0 +1,370 @@
+/* Enhanced Homepage Carousel Styles */
+
+.carousel-wrapper {
+  width: 100%;
+  margin: 40px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Add subtle gradient overlay on edges */
+.carousel-wrapper::before,
+.carousel-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.carousel-wrapper::before {
+  left: 0;
+  background: linear-gradient(to right, var(--bg-color), transparent);
+}
+
+.carousel-wrapper::after {
+  right: 0;
+  background: linear-gradient(to left, var(--bg-color), transparent);
+}
+
+.games-carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 24px 0;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+}
+
+.carousel-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+}
+
+/* Enhanced Carousel Game Cards */
+.carousel-game-card {
+  min-width: 270px;
+  height: 270px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  background: linear-gradient(135deg, #1a1f2e, #131823);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  flex-shrink: 0;
+  border: 1px solid rgba(91, 158, 255, 0.15);
+}
+
+.carousel-game-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    rgba(91, 158, 255, 0.15), 
+    rgba(123, 92, 255, 0.1));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.carousel-game-card:hover {
+  transform: translateY(-12px) scale(1.05);
+  box-shadow: 0 16px 48px rgba(91, 158, 255, 0.4),
+              0 0 60px rgba(91, 158, 255, 0.2);
+  z-index: 10;
+  border-color: rgba(91, 158, 255, 0.5);
+}
+
+.carousel-game-card:hover::before {
+  opacity: 1;
+}
+
+.carousel-game-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carousel-game-card:hover img {
+  transform: scale(1.08);
+}
+
+.carousel-game-card h3 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 18px;
+  background: linear-gradient(to top, 
+    rgba(10, 14, 26, 0.98), 
+    rgba(10, 14, 26, 0.85), 
+    transparent);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  user-select: none;
+  z-index: 2;
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.3px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Enhanced Scroll Animations */
+@keyframes scrollLeftToRight {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes scrollRightToLeft {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.scroll-left-to-right {
+  animation: scrollLeftToRight 45s linear infinite;
+}
+
+.scroll-right-to-left {
+  animation: scrollRightToLeft 45s linear infinite;
+}
+
+/* Pause on hover - applies to any card in track */
+.carousel-track:hover {
+  animation-play-state: paused;
+}
+
+/* Enhanced Featured Section */
+.featured-section {
+  background: linear-gradient(135deg, 
+    rgba(26, 31, 46, 0.8), 
+    rgba(19, 24, 35, 0.8));
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(91, 158, 255, 0.3);
+  border-radius: 20px;
+  padding: 50px 45px;
+  margin: 50px auto;
+  max-width: 950px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
+              0 0 80px rgba(91, 158, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.featured-section::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  background: radial-gradient(
+    circle,
+    rgba(91, 158, 255, 0.12) 0%,
+    rgba(123, 92, 255, 0.08) 30%,
+    transparent 70%
+  );
+  animation: pulse 5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.15) rotate(180deg);
+    opacity: 0.7;
+  }
+}
+
+.featured-section h2 {
+  background: linear-gradient(135deg, #5b9eff 0%, #7b5cff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 40px;
+  font-weight: 800;
+  margin-bottom: 18px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 4px 20px rgba(91, 158, 255, 0.3);
+  letter-spacing: 0.5px;
+}
+
+.featured-section p {
+  color: var(--text-color);
+  font-size: 18px;
+  line-height: 1.8;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+  font-weight: 500;
+}
+
+.featured-section p:last-child {
+  margin-bottom: 0;
+}
+
+/* Add a subtle shine effect */
+.featured-section::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.03) 50%,
+    transparent 70%
+  );
+  animation: shine 6s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) translateY(-100%);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%);
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .carousel-game-card {
+    min-width: 220px;
+    height: 220px;
+  }
+  
+  .carousel-game-card h3 {
+    font-size: 14px;
+    padding: 15px;
+  }
+
+  .featured-section {
+    padding: 40px 30px;
+    margin: 40px 20px;
+  }
+
+  .featured-section h2 {
+    font-size: 32px;
+  }
+
+  .featured-section p {
+    font-size: 16px;
+  }
+
+  .scroll-left-to-right,
+  .scroll-right-to-left {
+    animation-duration: 35s;
+  }
+  
+  .carousel-track {
+    gap: 20px;
+  }
+  
+  .carousel-wrapper::before,
+  .carousel-wrapper::after {
+    width: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-game-card {
+    min-width: 190px;
+    height: 190px;
+  }
+  
+  .carousel-game-card h3 {
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  .featured-section {
+    padding: 30px 20px;
+    margin: 30px 15px;
+  }
+
+  .featured-section h2 {
+    font-size: 26px;
+  }
+
+  .featured-section p {
+    font-size: 14px;
+  }
+  
+  .scroll-left-to-right,
+  .scroll-right-to-left {
+    animation-duration: 30s;
+  }
+  
+  .carousel-track {
+    gap: 16px;
+  }
+  
+  .carousel-wrapper::before,
+  .carousel-wrapper::after {
+    width: 40px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-left-to-right,
+  .scroll-right-to-left {
+    animation: none;
+  }
+  
+  .featured-section::before,
+  .featured-section::after {
+    animation: none;
+  }
+  
+  .carousel-game-card {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .carousel-game-card {
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+  
+  .featured-section {
+    border: 3px solid rgba(255, 255, 255, 0.8);
+  }
+}
