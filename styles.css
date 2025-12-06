@@ -1,9 +1,6 @@
-/* Modern Relic Stylesheet v6.0 */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap');
 
 :root {
-  /* Modern Color Palette */
   --bg-color: #0a0e1a;
   --bg-secondary: #12171f;
   --nav-color: #1a1f2e;
@@ -16,11 +13,11 @@
   --btn-bg: #2d3548;
   --btn-hover-bg: #6366f1;
   
-  /* Glassmorphism */
+  
   --glass-bg: rgba(26, 31, 46, 0.7);
   --glass-border: rgba(99, 102, 241, 0.2);
   
-  /* Shadows */
+  
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -37,7 +34,7 @@
   --sidebar-accent-border: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
 }
 
-/* Base Styles */
+
 * {
   box-sizing: border-box;
 }
@@ -780,7 +777,7 @@ body::before {
   letter-spacing: 0.3px;
 }
 
-/* Search Container */
+/* Search Cont */
 .search-container {
   display: flex;
   justify-content: center;
@@ -852,36 +849,39 @@ body::before {
   box-shadow: var(--shadow-lg), var(--shadow-glow);
 }
 
-/* Game Play Area */
+/* Game Play Area - BIGGER */
 .game-play-area {
   background: #000;
-  border: 2px solid var(--accent-color);
-  border-radius: 20px;
-  padding: 12px;
+  border: 3px solid var(--accent-color);
+  border-radius: 24px;
+  padding: 16px;
   position: relative;
   box-shadow: var(--shadow-lg), var(--shadow-glow);
+  max-width: 95%;
+  margin: 0 auto;
 }
 
 .game-iframe {
   width: 100%;
-  height: 600px;
+  height: 85vh; /* Increased from 600px to 85% of height */
+  min-height: 700px; /* Minimum height to ensure itss always big enough */
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
 }
 
 .fullscreen-btn {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 28px;
+  right: 28px;
   background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
   color: #fff;
   border: none;
   border-radius: 12px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   cursor: pointer;
   z-index: 10000;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 15px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-md);
 }
@@ -889,21 +889,4 @@ body::before {
 .fullscreen-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
-}
-
-/* Admin Panel Styles */
-.admin-subsection {
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border-color);
-}
-
-.admin-subsection h4 {
-  margin-bottom: 16px;
-  background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-size: 20px;
-  font-weight: 700;
 }
